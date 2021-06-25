@@ -3,11 +3,22 @@ import ItemForm from "./ItemForm";
 import Filter from "./Filter";
 import Item from "./Item";
 
-function ShoppingList({ items }) {
+function ShoppingList({ setItems, items }) {
 
-  const [selectedCategory, setSelectedCategory] = useState("Produce");
-  const [searchText, setSearchText] = useState("");
+  // const [itemsData, setItemsData] = useState(items); // being used for displaying the list items
 
+  const [selectedCategory, setSelectedCategory] = useState("All"); // being used for filterin items by their category
+  const [searchText, setSearchText] = useState(""); // being used for filterin the items 
+
+  function onItemFormSubmit(inputState) { // to crate another item
+    // event.preventDefault();
+    if(items.some((item) => item.id === inputState.id)) {
+      return console.log("Please add a different item.")
+    } else if (inputState.name === "" || inputState.id === undefined) { return console.log("Please specify a name.") }
+    console.log("Added succesfully!");
+    setItems([...items, {id: inputState.id, name: inputState.name, category: inputState.category}])
+  }
+  // console.log(items)
   function handleSearchTextChange(event) {
     setSearchText(event.target.value)
   }
@@ -15,8 +26,8 @@ function ShoppingList({ items }) {
   function handleCategoryChange(event) {
     setSelectedCategory(event.target.value);
   }
-
-  function displayItems() {
+  
+  function displayItems() { 
     const categoryItems = items.filter((item) => {
       if (selectedCategory === "All") return true;
   
@@ -25,7 +36,6 @@ function ShoppingList({ items }) {
   
     function searchItems() { // don't call this if searchText state is an empty string
       let regex = new RegExp(`${searchText}`, "i");
-      console.log(regex)
       return categoryItems.filter((item) => regex.test(item.name)) // if the item object's name property contains the given searchText inside, it will return it
     }
     return searchItems()
@@ -33,10 +43,10 @@ function ShoppingList({ items }) {
 
   return (
     <div className="ShoppingList">
-      <ItemForm />
-      <Filter onSearchChange={handleSearchTextChange} onCategoryChange={handleCategoryChange} />
+      <ItemForm onItemFormSubmit={onItemFormSubmit} />
+      <Filter search={searchText} onSearchChange={handleSearchTextChange} onCategoryChange={handleCategoryChange} />
       <ul className="Items">
-        {displayItems().map((item) => (
+        {displayItems().map((item) => ( // every item displayed is related to the "items" state that has been declared in App.js file
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
